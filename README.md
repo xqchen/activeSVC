@@ -1,17 +1,21 @@
-# activeSVM
-ActiveSVM selects features for large matrix data with reduced computational complexity or limited data acqusition. It approachs Sequential Feature Selection through an active learning strategy with a support vector machine classifier. At each round of iteration, the procedure analyzes only the samples that classify poorly with the current feature set, and the procedure extends the feature set by identifying features within incorrectly classified samples that will maximally shift the classification margin. There are two strategy, min_complexity and min_acqusition. Min_complexity strategy tends to use less samples each iteration while min_acqusition strategy tends to re-use samples used in previous iterations to minimize the total samples we acquired during the procedure.
+# activeSVC
+ActiveSVC selects features for large matrix data with reduced computational complexity or limited data acqusition. It approachs Sequential Feature Selection through an active learning strategy with a support vector machine classifier. At each round of iteration, the procedure analyzes only the samples that classify poorly with the current feature set, and the procedure extends the feature set by identifying features within incorrectly classified samples that will maximally shift the classification margin. There are two strategy, min_complexity and min_acqusition. Min_complexity strategy tends to use less samples each iteration while min_acqusition strategy tends to re-use samples used in previous iterations to minimize the total samples we acquired during the procedure.
 
-## Why is activeSVM better than other feature selection methods?
+## Why is activeSVC better than other feature selection methods?
 - Easy to use
 - Good for large datasets
 - Reduce computational complexity
 - Minimize the data size we need
 
 ## Usage
-ActiveSVM processes a datasets with training set and test set and returns the features selected, training accuracy, test accuracy, training mean squared error, test mean squared error, the number of samples acquired after every features are selected.
+ActiveSVC processes a datasets with training set and test set and returns the features selected, training accuracy, test accuracy, training mean squared error, test mean squared error, the number of samples acquired after every features are selected.
 
 ## Requires
 numpy, random, math, os, time, parfor, sklearn, matplotlib
+
+## Import
+    from activeSVC import min_complexity
+    from activeSVC import min_acquisition
 
 ## Function
 - min_complexity
