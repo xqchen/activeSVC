@@ -20,62 +20,62 @@ numpy, random, math, os, time, parfor, sklearn, matplotlib
 ## min_complexity
 ### Parameters
     X_train: {ndarray, sparse matrix} of shape {n_samples_X, n_features}
-      Input data of training set.
+            Input data of training set.
     y_train: ndarray of shape {n_samples_X,}
-      Input classification labels of training set.
+            Input classification labels of training set.
     X_test: {ndarray, sparse matrix} of shape {n_samples_X, n_features}
-      Input data of test set.
+            Input data of test set.
     y_test: ndarray of shape {n_samples_X,}
-      Input classification labels of test set.
+            Input classification labels of test set.
     num_features: iteger
-      The total number of features to select.
+            The total number of features to select.
     num_samples: iteger
-      The number of samples to use in each iteration (for each feature).
+            The number of samples to use in each iteration (for each feature).
     balance: bool, default=False
-      Balance samples of each classes when sampling misclassified samples at each iteration or randomly sample misclassified samples.
+            Balance samples of each classes when sampling misclassified samples at each iteration or randomly sample misclassified samples.
 
 ### Return
     feature_selected: list of iteger
-      The sequence of features selected.
+            The sequence of features selected.
     num_samples_list: list of iteger
-      The number of unique samples acquired totally after every features are selected.
+            The number of unique samples acquired totally after every features are selected.
     train_errors: list of float
-      Mean squared error of training set after every features are selected.
+            Mean squared error of training set after every features are selected.
     test_errors: list of float
-      Mean squared error of test set after every features are selected.
+            Mean squared error of test set after every features are selected.
     train_accuracy: list of float
-      Classification accuracy of training set after every features are selected.
+            Classification accuracy of training set after every features are selected.
     test_accuracy: list of float
-      Classification accuracy of test set after every features are selected.
+            Classification accuracy of test set after every features are selected.
 
 ## min_acquisition
 ### Parameters
     X_train: {ndarray, sparse matrix} of shape {n_samples_X, n_features}
-      Input data of training set.
+            Input data of training set.
     y_train: ndarray of shape {n_samples_X,}
-      Input classification labels of training set.
+            Input classification labels of training set.
     X_test: {ndarray, sparse matrix} of shape {n_samples_X, n_features}
-      Input data of test set.
+            Input data of test set.
     y_test: ndarray of shape {n_samples_X,}
-      Input classification labels of test set.
+            Input classification labels of test set.
     num_features: iteger
-      The total number of features to select.
+            The total number of features to select.
     num_samples: iteger
-      The number of misclassified samples randomly sampled, which are taken union with samples already acquired before. The union of samples are used for next ietration.
+            The number of misclassified samples randomly sampled, which are taken union with samples already acquired before. The union of samples are used for next ietration.
 
 ### Return
     feature_selected: list of iteger
-      The sequence of features selected.
+            The sequence of features selected.
     num_samples_list: list of iteger
-      The number of unique samples acquired totally after every features are selected.
+            The number of unique samples acquired totally after every features are selected.
     samples_global: list of iteger
-      The indices of samples that are acquired.
+            The indices of samples that are acquired.
     train_errors: list of float
-      Mean squared error of training set after every features are selected.
+            Mean squared error of training set after every features are selected.
     test_errors: list of float
-      Mean squared error of test set after every features are selected.
+            Mean squared error of test set after every features are selected.
     train_accuracy: list of float
-      Classification accuracy of training set after every features are selected.
+            Classification accuracy of training set after every features are selected.
     test_accuracy: list of float
-      Classification accuracy of test set after every features are selected.
+            Classification accuracy of test set after every features are selected.
 
