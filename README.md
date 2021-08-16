@@ -4,6 +4,8 @@ ActiveSVC selects features for large matrix data with reduced computational comp
 
 This project was started in 2021 and the latest version is 0.0.1.
 
+There are two demos in \test folder, which is python notebook and can be run directly. 
+
 ## Why is activeSVC better than other feature selection methods?
 - Easy to use
 - Good for large datasets
