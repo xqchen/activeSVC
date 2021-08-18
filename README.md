@@ -1,10 +1,5 @@
 # activeSVC
-
-ActiveSVC selects features for large matrix data with reduced computational complexity or limited data acqusition. It approachs Sequential Feature Selection through an active learning strategy with a support vector machine classifier. At each round of iteration, the procedure analyzes only the samples that classify poorly with the current feature set, and the procedure extends the feature set by identifying features within incorrectly classified samples that will maximally shift the classification margin. There are two strategy, min_complexity and min_acqusition. Min_complexity strategy tends to use less samples each iteration while min_acqusition strategy tends to re-use samples used in previous iterations to minimize the total samples we acquired during the procedure.
-
-This project was started in 2021 and the latest version is 0.0.1.
-
-There are two demos in \test folder, which is python notebook and can be run directly. 
+ActiveSVC selects features for large matrix data with reduced computational complexity or limited data acquisition. It approaches Sequential Feature Selection through an active learning strategy with a support vector machine classifier. At each round of iteration, the procedure analyzes only the samples that classify poorly with the current feature set, and the procedure extends the feature set by identifying features within incorrectly classified samples that will maximally shift the classification margin. There are two strategy, min_complexity and min_acquisition. Min_complexity strategy tends to use less samples each iteration while min_acquisition strategy tends to re-use samples used in previous iterations to minimize the total samples we acquired during the procedure.
 
 ## Why is activeSVC better than other feature selection methods?
 - Easy to use
@@ -12,19 +7,11 @@ There are two demos in \test folder, which is python notebook and can be run dir
 - Reduce computational complexity
 - Minimize the data size we need
 
-## Installation 
-
-### Dependencies
-- Python (>= 2.7)
-- numpy(>= 1.14.6)
-- parfor(>=2021.3.1)
-- sklearn(>=0.0)
-
-### User installation
-    pip install activeSVC==0.0.1
-        
 ## Usage
 ActiveSVC processes a datasets with training set and test set and returns the features selected, training accuracy, test accuracy, training mean squared error, test mean squared error, the number of samples acquired after every features are selected.
+
+## Requires
+numpy, random, math, os, time, multiprocessing, sklearn, matplotlib
 
 ## Import
     from activeSVC import min_complexity
@@ -32,7 +19,7 @@ ActiveSVC processes a datasets with training set and test set and returns the fe
 
 ## Function
 - min_complexity
-- min_acqusition
+- min_acquisition
 
 ## min_complexity
 ### Parameters
@@ -44,17 +31,19 @@ ActiveSVC processes a datasets with training set and test set and returns the fe
             Input data of test set.
     y_test: ndarray of shape {n_samples_X,}
             Input classification labels of test set.
-    num_features: iteger
+    num_features: integer
             The total number of features to select.
-    num_samples: iteger
+    num_samples: integer
             The number of samples to use in each iteration (for each feature).
+    init_samples: integer, default=None
+            The number of samples to use in the first iteration.
     balance: bool, default=False
             Balance samples of each classes when sampling misclassified samples at each iteration or randomly sample misclassified samples.
 
 ### Return
-    feature_selected: list of iteger
+    feature_selected: list of integer
             The sequence of features selected.
-    num_samples_list: list of iteger
+    num_samples_list: list of integer
             The number of unique samples acquired totally after every features are selected.
     train_errors: list of float
             Mean squared error of training set after every features are selected.
@@ -75,17 +64,19 @@ ActiveSVC processes a datasets with training set and test set and returns the fe
             Input data of test set.
     y_test: ndarray of shape {n_samples_X,}
             Input classification labels of test set.
-    num_features: iteger
+    num_features: integer
             The total number of features to select.
-    num_samples: iteger
+    num_samples: integer
             The number of misclassified samples randomly sampled, which are taken union with samples already acquired before. The union of samples are used for next ietration.
+    init_samples: integer, default=None
+            The number of samples to use in the first iteration.
 
 ### Return
-    feature_selected: list of iteger
+    feature_selected: list of integer
             The sequence of features selected.
-    num_samples_list: list of iteger
+    num_samples_list: list of integer
             The number of unique samples acquired totally after every features are selected.
-    samples_global: list of iteger
+    samples_global: list of integer
             The indices of samples that are acquired.
     train_errors: list of float
             Mean squared error of training set after every features are selected.
