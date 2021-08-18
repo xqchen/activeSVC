@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="activeSVC",
-    version="0.0.1",
+    version="1.0.1",
     author="Xiaoqiao Chen",
     author_email="xqchen@caltech.edu",
     description="Active feature selection method with support vector classifier.",
