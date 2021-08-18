@@ -1,0 +1,4 @@
+numpy(>= 1.14.6)
+sklearn(>=0.0)
+matplotlib(>=3.3.4)
+pandas(>=1.2.1)
