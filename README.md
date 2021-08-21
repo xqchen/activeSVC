@@ -10,6 +10,9 @@ ActiveSVC selects features for large matrix data with reduced computational comp
 ## Usage
 ActiveSVC processes a datasets with training set and test set and returns the features selected, training accuracy, test accuracy, training mean squared error, test mean squared error, the number of samples acquired after every features are selected.
 
+## Installation
+       pip install activeSVC
+       
 ## Requires
 numpy, random, math, os, time, multiprocessing, sklearn, matplotlib
 
