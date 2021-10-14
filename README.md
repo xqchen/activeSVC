@@ -23,7 +23,7 @@ numpy, random, math, os, time, multiprocessing, sklearn, matplotlib
 
 ## min_complexity
 ### Parameters
-    __X_train: {ndarray, sparse matrix} of shape {n_samples_X, n_features}__
+    X_train: {ndarray, sparse matrix} of shape {n_samples_X, n_features}
             Input data of training set.
     y_train: ndarray of shape {n_samples_X,}
             Input classification labels of training set.
