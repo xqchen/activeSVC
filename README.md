@@ -24,6 +24,9 @@ numpy, random, math, os, time, multiprocessing, sklearn, spcipy
     from activeSVC import min_complexity_h5py
     from activeSVC import min_acquisition_h5py
 
+## Notice
+Sometimes it shows ValueError: This solver needs samples of at least 2 classes in the data, but the data contains only one class: 0.
+This is because of the settings of algorithm. Please set a larger num_samples and init_samples and then re-run this cell. Or set parameter class_weight='balanced' and balance=True and then re-run the cell. 
 
 ## Function
 - min_complexity: fix SVM parameters for each loop
