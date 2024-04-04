@@ -41,9 +41,9 @@ class SVM:
         self.X=X
         self.y=y
         self.model=svm.LinearSVC(*args,**kwargs)
-    def fit():
+    def fit(self):
         self.model.fit(self.X,self.y)
-    def predict(X):
+    def predict(self,X):
         return self.model.predict(X)
         
 def text_create(path, name, msg):
@@ -53,84 +53,47 @@ def text_create(path, name, msg):
     f.close()
 
 
-
-def get_error(model, X, y,sample_weight):
-    y_pred = model.predict(X)
-    return mean_squared_error(y_pred, y,sample_weight=sample_weight)
-
-
-def get_sv_classes(c,y,sv):
-    sv_classes = list(set(list(np.where(y == c)[0])) & set(sv))
-    return sv_classes
-def select_samples_mincomplexity(X, y, num_samples,balance=False,penalty='l2',loss='squared_hinge',dual=True, tol=1e-4, C=1.0, fit_intercept=True,
-                          intercept_scaling=1, class_weight=None, random_state=None, max_iter=1000):
-    model = SVM(X, y,penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
-                          intercept_scaling=intercept_scaling, class_weight=class_weight, 
-                          random_state=random_state, max_iter=max_iter)
-    model.fit()
-    y_pred = model.predict(X)
-    sv = [i for i in range(len(y)) if y[i] != y_pred[i]]
-    if balance:
-        indices=[]
-        classes=np.unique(y)
+class sample_selector:
+    def __init__(self,X,y,*args,**kwargs):
+        self.X=X
+        self.y=y
+        self.model=SVM(X,y,*args,**kwargs)
+        model.fit()
+        self.y_pred=model.predict(X)
         
-        pool = mp.Pool(mp.cpu_count())
-        sv_classes=pool.starmap(get_sv_classes,[(c,y,sv) for c in classes])
-        pool.close()
-        
-        sv_classes.sort(key=len)
-        for i in range(len(classes)):
-            sv_class=sv_classes[i]
-            at_least=int((num_samples-len(indices))/(len(classes)-i))
-            if len(sv_class)<=at_least:
-                indices+=sv_class
-            else:
-                indices += random.sample(sv_class, at_least)
-    else:
-        if len(sv)<num_samples:
-            indices =sv
+    def get_error(self,model, X, y,sample_weight):
+        y_pred = model.predict(X)
+        return mean_squared_error(y_pred, y,sample_weight=sample_weight)
+
+
+    def get_sv_classes(self,c,y,sv):
+        sv_classes = list(set(list(np.where(y == c)[0])) & set(sv))
+        return sv_classes
+    
+    def run(self,):
+        sv = [i for i in range(len(y)) if y[i] != y_pred[i]]
+        if balance:
+            indices=[]
+            classes=np.unique(y)
+
+            pool = mp.Pool(mp.cpu_count())
+            sv_classes=pool.starmap(get_sv_classes,[(c,y,sv) for c in classes])
+            pool.close()
+
+            sv_classes.sort(key=len)
+            for i in range(len(classes)):
+                sv_class=sv_classes[i]
+                at_least=int((num_samples-len(indices))/(len(classes)-i))
+                if len(sv_class)<=at_least:
+                    indices+=sv_class
+                else:
+                    indices += random.sample(sv_class, at_least)
         else:
-            indices = random.sample(sv, num_samples)
-    return indices, model
-
-
-def select_samples_minacquisition(X, y, num_samples, sample_selected,balance=False,penalty='l2',loss='squared_hinge',dual=True, tol=1e-4, C=1.0, fit_intercept=True,
-                          intercept_scaling=1, class_weight=None, random_state=None, max_iter=1000):
-    model = SVM(X, y,penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
-                          intercept_scaling=intercept_scaling, class_weight=class_weight, 
-                          random_state=random_state, max_iter=max_iter)
-    model.fit()
-    y_pred = model.predict(X)
-    sv = [i for i in range(len(y)) if y[i] != y_pred[i]]
-    reused = list(set(sample_selected) & set(sv))
-    num_select=num_samples-len(reused)
-    if num_select<=0:
-        return [],model
-    elif balance:
-        indices = reused
-        sv = list(set(sv) - set(indices))
-        classes=np.unique(y)
-        
-        pool = mp.Pool(mp.cpu_count())
-        sv_classes=pool.starmap(get_sv_classes,[(c,y,sv) for c in classes])
-        pool.close()
-        
-        sv_classes.sort(key=len)
-        for i in range(len(classes)):
-            sv_class=sv_classes[i]
-            at_least=int((num_samples-len(indices))/(len(classes)-i))
-            if len(sv_class)<=at_least:
-                indices+=sv_class
+            if len(sv)<num_samples:
+                indices =sv
             else:
-                indices += random.sample(sv_class, at_least)
-    else:
-        indices = reused
-        sv = list(set(sv) - set(indices))
-        if len(sv)<=num_select:
-            indices +=sv
-        else:
-            indices += random.sample(sv, num_select)
-    return indices, model
+                indices = random.sample(sv, num_samples)
+        return indices, model
 
 
 
