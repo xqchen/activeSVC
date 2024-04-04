@@ -43,35 +43,33 @@ def timer_decorator(func):
     return inner
         
 class SVM:
-    def __init__(self,X, y, *args,**kwargs):
-        self.X=X
-        self.y=y
+    def __init__(self,*args,**kwargs):
         self.model=svm.LinearSVC(*args,**kwargs)
-    def fit(self):
-        self.model.fit(self.X,self.y)
+    def fit(self,X, y):
+        self.model.fit(X,y)
     def predict(self,X):
         return self.model.predict(X)
 
 
-class sample_selector:
-    def __init__(self,X,y,*args,**kwargs):
-        self.X=X
-        self.y=y
-        self.model=SVM(X,y,*args,**kwargs)
-        model.fit()
+class Sample_selector:
+    def __init__(self,*args,**kwargs):
+        self.model=SVM(*args,**kwargs)
+        
+    def fit(self,X,y):
+        self.model.fit(X,y)
+    def predict(self,X):
         self.y_pred=model.predict(X)
         
-    def get_error(self,model, X, y,sample_weight):
-        y_pred = model.predict(X)
-        return mean_squared_error(y_pred, y,sample_weight=sample_weight)
+    def get_error(self,sample_weight):
+        return mean_squared_error(self.y_pred, self.y,sample_weight=sample_weight)
 
 
-    def get_sv_classes(self,c,y,sv):
-        sv_classes = list(set(list(np.where(y == c)[0])) & set(sv))
+    def get_sv_classes(self,c,sv):
+        sv_classes = list(set(list(np.where(self.y == c)[0])) & set(sv))
         return sv_classes
     
-    def run(self,):
-        sv = [i for i in range(len(y)) if y[i] != y_pred[i]]
+    def run(self,balance):
+        sv = [i for i in range(len(y)) if y[i] != self.y_pred[i]]
         if balance:
             indices=[]
             classes=np.unique(y)
@@ -95,39 +93,43 @@ class sample_selector:
                 indices = random.sample(sv, num_samples)
         return indices, model
 
-
-def get_angles(i, X, y, feature_list,w_padded,penalty='l2',loss='squared_hinge',dual=True, tol=1e-4, C=1.0, fit_intercept=True,
-                          intercept_scaling=1, class_weight=None, random_state=None, max_iter=1000):
-    X_local = X[:, feature_list + [i]]
-    w_new = SVM(X_local, y,penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
-                          intercept_scaling=intercept_scaling, class_weight=class_weight,
-                          random_state=random_state, max_iter=max_iter).coef_
-    cos=cosine_similarity(w_padded, w_new)
-    angle = 0
-    for j in range(w_padded.shape[0]):
-        tmp=cos[j,j]
-        if tmp>1:
-            tmp=1
-        elif tmp<-1:
-            tmp=-1
-        angle = angle + math.acos(tmp)            
-    return angle
-def select_feature(X, y, feature_list,penalty='l2',loss='squared_hinge',dual=True, tol=1e-4, C=1.0, fit_intercept=True,
-                          intercept_scaling=1, class_weight=None, random_state=None, max_iter=1000):
-    coef_ = SVM(X[:, feature_list], y,penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
-                          intercept_scaling=intercept_scaling, class_weight=class_weight,
-                          random_state=random_state, max_iter=max_iter).coef_
-    w_padded = np.hstack((coef_, np.zeros((coef_.shape[0], 1))))
+class Feature_selector:
+    def __init__(self,*args,**kwargs):
+        self.param=(*args,**kwargs)
+    def fit(self,X,y,feature_list:
+        self.X=X
+        self.y=y
+        self.feature_list=feature_list
+        
+    def get_angles(self, i, feature_list,w_padded,*args,**kwargs):
+        X_local = self.X[:, feature_list + [i]]
+        model=SVM(X_local, y,self.param)
+        model.fit()
+        w_new = model.model.coef_
+        cos=cosine_similarity(w_padded, w_new)
+        angle = 0
+        for j in range(w_padded.shape[0]):
+            tmp=cos[j,j]
+            if tmp>1:
+                tmp=1
+            elif tmp<-1:
+                tmp=-1
+            angle = angle + math.acos(tmp)            
+        return angle
+    def run(self):
+        model=SVM(self.X[:, feature_list], self.y,self.param)
+        model.fit()
+        coef_=model.model.coef_
+        w_padded = np.hstack((coef_, np.zeros((coef_.shape[0], 1))))
     
-    pool = mp.Pool(mp.cpu_count())
-    angles=pool.starmap(get_angles, [(i, X, y,feature_list,w_padded,penalty,loss,dual, tol, C, fit_intercept,
-                                      intercept_scaling, class_weight,
-                                      random_state, max_iter) for i in range(X.shape[1])])
-    pool.close()
+        pool = mp.Pool(mp.cpu_count())
+        angles=pool.starmap(get_angles, [(i, X, y,feature_list,w_padded,penalty,loss,dual, tol, C, fit_intercept,
+                                          intercept_scaling, class_weight,
+                                          random_state, max_iter) for i in range(X.shape[1])])
+        pool.close()
 
-    indices = sorted(range(X.shape[1]), key=lambda i: angles[i], reverse=True)
-    return [i for i in indices if i not in feature_list][0]
-
+        indices = sorted(range(X.shape[1]), key=lambda i: angles[i], reverse=True)
+        return [i for i in indices if i not in feature_list][0]
 
 
 def get_scores(i, X_global, y_global,penalty='l2',loss='squared_hinge',dual=True, tol=1e-4, C=1.0, fit_intercept=True,
@@ -153,12 +155,8 @@ def min_complexity(X_train, y_train, X_test, y_test, num_features, num_samples,i
     test_errors = []
     train_scores = []
     test_scores = []
-    step_times=[]
     if init_samples is None:
         init_samples=num_samples
-    
-    t=Timer()
-    t.start()
     
     if balance:
         samples=[]
@@ -204,23 +202,27 @@ def min_complexity(X_train, y_train, X_test, y_test, num_features, num_samples,i
     else:
         train_sample_weight=None
         test_sample_weight=None
-        
-    for i in range(num_features - 1):
-        t=Timer()
-        t.start()
-
-        X_measured_train = X_train[:,feature_selected]
-        X_measured_test = X_test[:,feature_selected]
-
-        samples, model = select_samples_mincomplexity(X_measured_train, y_train, num_samples,balance=balance,
+    
+    sample_selector=Sample_selector(num_samples,balance=balance,
                                                      penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
                                                       intercept_scaling=intercept_scaling, class_weight=class_weight,
                                                       random_state=random_state, max_iter=max_iter)
+    feature_selector=Feature_selector(penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
+                          intercept_scaling=intercept_scaling, class_weight=class_weight,
+                          random_state=random_state, max_iter=max_iter)
+            
+    for i in range(num_features - 1):
 
-        train_error = get_error(model, X_measured_train, y_train,sample_weight=train_sample_weight)
-        test_error = get_error(model, X_measured_test, y_test,sample_weight=test_sample_weight)
-        train_score = model.score(X_measured_train, y_train,sample_weight=train_sample_weight)
-        test_score = model.score(X_measured_test, y_test,sample_weight=test_sample_weight)
+        X_measured_train = X_train[:,feature_selected]
+        X_measured_test = X_test[:,feature_selected]
+        
+        sample_selector.fit(X_measured_train, y_train)
+        samples, model = sample_selector.run()
+
+        train_error = model.get_error(X_measured_train, y_train,sample_weight=train_sample_weight)
+        test_error = model.get_error(X_measured_test, y_test,sample_weight=test_sample_weight)
+        train_score = model.model.score(X_measured_train, y_train,sample_weight=train_sample_weight)
+        test_score = model.model.score(X_measured_test, y_test,sample_weight=test_sample_weight)
         train_errors.append(train_error)
         test_errors.append(test_error)
         train_scores.append(train_score)
@@ -231,22 +233,19 @@ def min_complexity(X_train, y_train, X_test, y_test, num_features, num_samples,i
         samples_global = list(set().union(samples_global, samples))
         num_samples_list.append(len(samples_global))
         
-        new_feature=select_feature(X_train[samples], y_train[samples],feature_selected,
-                                   penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
-                          intercept_scaling=intercept_scaling, class_weight=class_weight,
-                          random_state=random_state, max_iter=max_iter)
-        feature_selected.append(new_feature)
-        step_times.append(t.stop())
+        feature_selector.fit(X_train[samples], y_train[samples],feature_selected)
+
+        feature_selected.append(feature_selector.run())
 
     X_measured_train = X_train[:,feature_selected]
     X_measured_test = X_test[:,feature_selected]
     model=SVM(X_measured_train,y_train,penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
                           intercept_scaling=intercept_scaling, class_weight=class_weight,
                           random_state=random_state, max_iter=max_iter)
-    train_error = get_error(model, X_measured_train, y_train,sample_weight=train_sample_weight)
-    test_error = get_error(model, X_measured_test, y_test,sample_weight=test_sample_weight)
-    train_score = model.score(X_measured_train, y_train,sample_weight=train_sample_weight)
-    test_score = model.score(X_measured_test, y_test,sample_weight=test_sample_weight)
+    train_error = model.get_error(X_measured_train, y_train,sample_weight=train_sample_weight)
+    test_error = model.get_error(X_measured_test, y_test,sample_weight=test_sample_weight)
+    train_score = model.model.score(X_measured_train, y_train,sample_weight=train_sample_weight)
+    test_score = model.model.score(X_measured_test, y_test,sample_weight=test_sample_weight)
     train_errors.append(train_error)
     test_errors.append(test_error)
     train_scores.append(train_score)
@@ -270,13 +269,10 @@ def min_acquisition(X_train, y_train, X_test, y_test, num_features, num_samples,
     test_errors = []
     train_scores = []
     test_scores = []
-    step_times=[]
     
     if init_samples is None:
         init_samples=num_samples
-    
-    t=Timer()
-    t.start()
+
     
     if balance:
         samples=[]
@@ -322,23 +318,26 @@ def min_acquisition(X_train, y_train, X_test, y_test, num_features, num_samples,
     else:
         train_sample_weight=None
         test_sample_weight=None
-        
+    
+    sample_selector=Sample_selector(num_samples,balance=balance,
+                                                     penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
+                                                      intercept_scaling=intercept_scaling, class_weight=class_weight,
+                                                      random_state=random_state, max_iter=max_iter)
+    feature_selector=Feature_selector(penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
+                          intercept_scaling=intercept_scaling, class_weight=class_weight,
+                          random_state=random_state, max_iter=max_iter)
     for i in range(num_features - 1):
-        t=Timer()
-        t.start()
 
         X_measured_train = X_train[:,feature_selected]
         X_measured_test = X_test[:,feature_selected]
 
-        samples, model = select_samples_minacquisition(X_measured_train, y_train, num_samples,samples_global,balance=balance,
-                                                       penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
-                          intercept_scaling=intercept_scaling, class_weight=class_weight,
-                          random_state=random_state, max_iter=max_iter)
+        sample_selector.fit(X_measured_train, y_train)
+        samples, model = sample_selector.run()
 
-        train_error = get_error(model, X_measured_train, y_train,sample_weight=train_sample_weight)
-        test_error = get_error(model, X_measured_test, y_test,sample_weight=test_sample_weight)
-        train_score = model.score(X_measured_train, y_train,sample_weight=train_sample_weight)
-        test_score = model.score(X_measured_test, y_test,sample_weight=test_sample_weight)
+        train_error = model.get_error(X_measured_train, y_train,sample_weight=train_sample_weight)
+        test_error = model.get_error(X_measured_test, y_test,sample_weight=test_sample_weight)
+        train_score = model.model.score(X_measured_train, y_train,sample_weight=train_sample_weight)
+        test_score = model.model.score(X_measured_test, y_test,sample_weight=test_sample_weight)
         train_errors.append(train_error)
         test_errors.append(test_error)
         train_scores.append(train_score)
@@ -349,22 +348,19 @@ def min_acquisition(X_train, y_train, X_test, y_test, num_features, num_samples,
         samples_global = list(set().union(samples_global, samples))
         num_samples_list.append(len(samples_global))
         
-        new_feature=select_feature(X_train[samples_global], y_train[samples_global],feature_selected,
-                                   penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
-                          intercept_scaling=intercept_scaling, class_weight=class_weight,
-                          random_state=random_state, max_iter=max_iter)
-        feature_selected.append(new_feature)
-        step_times.append(t.stop())
+        feature_selector.fit(X_train[samples], y_train[samples],feature_selected)
+
+        feature_selected.append(feature_selector.run())
 
     X_measured_train = X_train[:,feature_selected]
     X_measured_test = X_test[:,feature_selected]
     model=SVM(X_measured_train,y_train,penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
                           intercept_scaling=intercept_scaling, class_weight=class_weight,
                           random_state=random_state, max_iter=max_iter)
-    train_error = get_error(model, X_measured_train, y_train,sample_weight=train_sample_weight)
-    test_error = get_error(model, X_measured_test, y_test,sample_weight=test_sample_weight)
-    train_score = model.score(X_measured_train, y_train,sample_weight=train_sample_weight)
-    test_score = model.score(X_measured_test, y_test,sample_weight=test_sample_weight)
+    train_error = model.get_error(X_measured_train, y_train,sample_weight=train_sample_weight)
+    test_error = model.get_error(X_measured_test, y_test,sample_weight=test_sample_weight)
+    train_score = model.model.score(X_measured_train, y_train,sample_weight=train_sample_weight)
+    test_score = model.model.score(X_measured_test, y_test,sample_weight=test_sample_weight)
     train_errors.append(train_error)
     test_errors.append(test_error)
     train_scores.append(train_score)
