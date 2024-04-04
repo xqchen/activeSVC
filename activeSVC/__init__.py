@@ -51,12 +51,6 @@ class SVM:
         self.model.fit(self.X,self.y)
     def predict(self,X):
         return self.model.predict(X)
-        
-def text_create(path, name, msg):
-    full_path = path + "/" + name + '.pickle'
-    f=open(full_path,'wb') 
-    pickle.dump(msg,f)
-    f.close()
 
 
 class sample_selector:
