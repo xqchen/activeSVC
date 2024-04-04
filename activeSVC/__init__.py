@@ -36,22 +36,22 @@ class Timer:
         
 
         
-
+class SVM:
+    def __init__(self,X, y, *args,**kwargs):
+        self.X=X
+        self.y=y
+        self.model=svm.LinearSVC(*args,**kwargs)
+    def fit():
+        self.model.fit(self.X,self.y)
+    def predict(X):
+        return self.model.predict(X)
+        
 def text_create(path, name, msg):
     full_path = path + "/" + name + '.pickle'
     f=open(full_path,'wb') 
     pickle.dump(msg,f)
     f.close()
 
-
-
-def SVM(X, y, penalty='l2',loss='squared_hinge',dual=True, tol=1e-4, C=1.0, fit_intercept=True,
-                          intercept_scaling=1, class_weight=None, random_state=None, max_iter=1000):
-    model = svm.LinearSVC(penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
-                          intercept_scaling=intercept_scaling, class_weight=class_weight,  
-                          random_state=random_state, max_iter=max_iter)
-    model.fit(X, y)
-    return model
 
 
 def get_error(model, X, y,sample_weight):
@@ -67,6 +67,7 @@ def select_samples_mincomplexity(X, y, num_samples,balance=False,penalty='l2',lo
     model = SVM(X, y,penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
                           intercept_scaling=intercept_scaling, class_weight=class_weight, 
                           random_state=random_state, max_iter=max_iter)
+    model.fit()
     y_pred = model.predict(X)
     sv = [i for i in range(len(y)) if y[i] != y_pred[i]]
     if balance:
@@ -98,6 +99,7 @@ def select_samples_minacquisition(X, y, num_samples, sample_selected,balance=Fal
     model = SVM(X, y,penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
                           intercept_scaling=intercept_scaling, class_weight=class_weight, 
                           random_state=random_state, max_iter=max_iter)
+    model.fit()
     y_pred = model.predict(X)
     sv = [i for i in range(len(y)) if y[i] != y_pred[i]]
     reused = list(set(sample_selected) & set(sv))
@@ -172,6 +174,7 @@ def get_scores(i, X_global, y_global,penalty='l2',loss='squared_hinge',dual=True
     model=SVM(X_global[:,i].reshape(-1, 1),y_global,penalty=penalty,loss=loss,dual=dual, tol=tol, C=C, fit_intercept=fit_intercept,
                           intercept_scaling=intercept_scaling, class_weight=class_weight,
                           random_state=random_state, max_iter=max_iter)
+    model.fit()
     if class_weight=='balanced':
         classes, inverse, count=np.unique(y_global,return_inverse=True, return_counts=True)
         sample_weight=(y_global.shape[0]/(len(classes)*count))[inverse]
