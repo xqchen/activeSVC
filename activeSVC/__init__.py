@@ -148,6 +148,8 @@ def get_scores(i, X_global, y_global,penalty='l2',loss='squared_hinge',dual=True
     else:
         sample_weight=None
     return model.score(X_global[:,i].reshape(-1, 1),y_global, sample_weight=sample_weight)
+
+@timer_decorator
 def min_complexity(X_train, y_train, X_test, y_test, num_features, num_samples,init_features=1,init_samples=None, balance=False,
                    penalty='l2',loss='squared_hinge',dual=True, tol=1e-4, C=1.0, fit_intercept=True,
                           intercept_scaling=1, class_weight=None, random_state=None, max_iter=1000):
@@ -263,7 +265,7 @@ def min_complexity(X_train, y_train, X_test, y_test, num_features, num_samples,i
 
 
 
-
+@timer_decorator
 def min_acquisition(X_train, y_train, X_test, y_test, num_features, num_samples,init_features=1,init_samples=None,balance=False,
                     penalty='l2',loss='squared_hinge',dual=True, tol=1e-4, C=1.0, fit_intercept=True,
                           intercept_scaling=1, class_weight=None, random_state=None, max_iter=1000):
@@ -538,6 +540,8 @@ def get_scores_cv(i, X_global, y_global,tol=[1e-4], C=[1], n_splits=5, penalty='
     else:
         sample_weight=None
     return model.score(X_global[:,i].reshape(-1, 1),y_global, sample_weight=sample_weight)
+
+@timer_decorator
 def min_complexity_cv(X_train, y_train, X_test, y_test, num_features, num_samples,init_features=1, init_samples=None, balance=False,
                    tol=[1e-4], C=[1], n_splits=5, penalty='l2',loss='squared_hinge',dual=True, fit_intercept=True,
                           intercept_scaling=1, class_weight=None, random_state=None, max_iter=1000):
@@ -654,7 +658,7 @@ def min_complexity_cv(X_train, y_train, X_test, y_test, num_features, num_sample
 
 
 
-
+@timer_decorator
 def min_acquisition_cv(X_train, y_train, X_test, y_test, num_features, num_samples,init_features=1,init_samples=None,balance=False,
                     tol=[1e-4], C=[1], n_splits=5, penalty='l2',loss='squared_hinge',dual=True, fit_intercept=True,
                           intercept_scaling=1, class_weight=None, random_state=None, max_iter=1000):
