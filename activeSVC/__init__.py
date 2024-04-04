@@ -34,7 +34,13 @@ class Timer:
         print(f"Elapsed time: {elapsed_time:0.4f} seconds")
         return elapsed_time
         
-
+def timer_decorator(func):
+    def inner(*args, **kwargs):
+        timer=Timer()
+        timer.start()
+        func(*args, **kwargs)
+        print(timer.stop())
+    return inner
         
 class SVM:
     def __init__(self,X, y, *args,**kwargs):
@@ -94,8 +100,6 @@ class sample_selector:
             else:
                 indices = random.sample(sv, num_samples)
         return indices, model
-
-
 
 
 def get_angles(i, X, y, feature_list,w_padded,penalty='l2',loss='squared_hinge',dual=True, tol=1e-4, C=1.0, fit_intercept=True,
